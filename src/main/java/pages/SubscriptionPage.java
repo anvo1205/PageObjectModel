@@ -3,16 +3,19 @@ package pages;
 import java.util.Calendar;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import data.Constants;
-import utils.BaseClass;
 import utils.Utils;
 
-public class SubscriptionPage extends BaseClass{
+public class SubscriptionPage{
+	private WebDriver driver;
+	
+//	Utils utl = new Utils(this.driver);
 	
 	@FindBy(name = "name")
 	WebElement txt_cardHolderName;
@@ -35,10 +38,10 @@ public class SubscriptionPage extends BaseClass{
 	@FindBy(xpath = "//div[@id='styles__modalContent--Eznb_']//div[@id='styles__root--3tkRc']")
 	WebElement btn_Upgrade;
 	
-	@FindBy(id = "styles__redirectButton")
+	@FindBy(xpath = "//div[contains(@id,'styles__redirectButton')]")
 	WebElement btn_ContinuePreSuccessModal;
 	
-	@FindBy(xpath = "//div[@id='styles__businessRedirect--3Ztgn']/div[text()='Get Started']")
+	@FindBy(xpath = "//div[contains(@id,'styles__businessRedirect')]/div")
 	WebElement btn_GetStartedBuzSuccessModal;
 	
 	@FindBy(id = "styles__businessTitle--1pb38")
@@ -71,16 +74,16 @@ public class SubscriptionPage extends BaseClass{
 	@FindBy(id = "styles__closeButton--3M4UK")
 	WebElement btn_CloseBuzUpgradeModal;
 	
-	@FindBy(xpath = "//div[@id='account__subscriptionDetails--2m21l']//td[@class='account__caps--25mYi']")
+	@FindBy(xpath = "//div[contains(@id,'account__subscriptionDetails')]//td[@class='account__caps--25mYi']")
 	WebElement lbl_PlanPeriod;
 	
-	@FindBy(xpath = "//div[@id='account__subscriptionDetails--2m21l']//tr[2]/td")
+	@FindBy(xpath = "//div[contains(@id,'account__subscriptionDetails')]//tr[2]/td")
 	WebElement lbl_NextInvoiceDate;
 	
-	@FindBy(xpath = "//div[@id='account__subscriptionDetails--2m21l']//tr[3]/td")
+	@FindBy(xpath = "//div[contains(@id,'account__subscriptionDetails')]//tr[3]/td")
 	WebElement lbl_NextBillingPeriod;
 	
-	@FindBy(xpath = "//div[@id='account__subscriptionDetails--2m21l']//tr[4]/td")
+	@FindBy(xpath = "//div[contains(@id,'account__subscriptionDetails')]//tr[4]/td")
 	WebElement lbl_CurrentTeamSize;
 	
 	@FindBy(id = "styles__closeButton--1QAjG")
@@ -144,8 +147,9 @@ public class SubscriptionPage extends BaseClass{
 	WebElement txt_Feedback;
 	
 	// Initializing the Page Objects:
-	public SubscriptionPage() {
-		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(driver, (int) Constants.IMPLICIT_WAIT);
+	public SubscriptionPage(WebDriver d) {
+		this.driver = d;
+		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(this.driver, (int) Constants.IMPLICIT_WAIT);
 		PageFactory.initElements(factory, this);
 	}
 	
@@ -155,8 +159,9 @@ public class SubscriptionPage extends BaseClass{
 	private String cardExpYear;
 	private String cardCVC;
 	
-	public SubscriptionPage(String cardNum) {
-		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(driver, (int) Constants.IMPLICIT_WAIT);
+	public SubscriptionPage(WebDriver d, String cardNum) {
+		this.driver = d;
+		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(this.driver, (int) Constants.IMPLICIT_WAIT);
 		PageFactory.initElements(factory, this);
 		
 		this.cardHolderName = "Test";
@@ -206,91 +211,92 @@ public class SubscriptionPage extends BaseClass{
 		this.cardCVC = cardCVC;
 	}
 	
-	public void upgrade()
+	public void completePayment()
 	{
-	Utils.waitUntilElementIsVisible(btn_Upgrade);
-	Utils.inputValueIntoTextbox(txt_cardHolderName, this.getCardHolderName());
-	Utils.inputValueIntoTextbox(txt_cardNum, this.getCardNum());
-	Utils.selectDropDownListValue(txt_cardExpMonth, "option", this.getCardExpMonth());
-	Utils.selectDropDownListValue(txt_cardExpYear, "option", this.getCardExpYear());
-	Utils.inputValueIntoTextbox(txt_cardCVC, this.getCardCVC());
+	Utils.waitUntilElementIsVisible(this.driver, btn_Upgrade);
+	Utils.inputValueIntoTextbox(this.driver, txt_cardHolderName, this.getCardHolderName());
+	Utils.inputValueIntoTextbox(this.driver, txt_cardNum, this.getCardNum());
+	Utils.selectDropDownListValue(this.driver, txt_cardExpMonth, "option", this.getCardExpMonth());
+	Utils.selectDropDownListValue(this.driver, txt_cardExpYear, "option", this.getCardExpYear());
+	Utils.inputValueIntoTextbox(this.driver, txt_cardCVC, this.getCardCVC());
+	Utils.clickElement(this.driver, btn_Upgrade);
 	}
 	
 	public void clickContinueOnSuccessModal()
 	{
-		Utils.clickElement(btn_ContinuePreSuccessModal);
+		Utils.clickElement(this.driver, btn_ContinuePreSuccessModal);
 	}
 	
 	public void clickGetStartedOnbuzSuccessModal()
 	{
-		Utils.clickElement(btn_GetStartedBuzSuccessModal);
+		Utils.clickElement(this.driver, btn_GetStartedBuzSuccessModal);
 	}
 	
 	public void selectRatingOption(String ratingNum)
 	{
-		Utils.clickElement(driver.findElement(By.xpath("//input[@value='" + ratingNum + "']")));
+		Utils.clickElement(this.driver, driver.findElement(By.xpath("//input[@value='" + ratingNum + "']")));
 	}
 	
 	public void addMemberSubscription(int numMems) {
-		Utils.inputValueIntoTextbox(txt_NumMember, String.valueOf(numMems));
-		Utils.clickElement(btn_AddMember);
-		Utils.clickElement(btn_ConfirmAddMem);
-		Utils.clickElement(btn_CloseAddMemSuccess);
+		Utils.inputValueIntoTextbox(this.driver, txt_NumMember, String.valueOf(numMems));
+		Utils.clickElement(this.driver, btn_AddMember);
+		Utils.clickElement(this.driver, btn_ConfirmAddMem);
+		Utils.clickElement(this.driver, btn_CloseAddMemSuccess);
 	}
 	
 	public void cancelSubscription(String rating, int optionNum, String feedback) throws InterruptedException
 	{
 		String planPeriod = lbl_PlanPeriod.getText();
-		Utils.scrollToElement(btn_CancelMySubscription);
-		Utils.clickElement(btn_CancelMySubscription);
-		selectRatingOption(rating);
-		Utils.clickElement(btn_ContinueAfterRating);
+		Utils.scrollToElement(this.driver, btn_CancelMySubscription);
+		Utils.clickElement(this.driver, btn_CancelMySubscription);
+		this.selectRatingOption(rating);
+		Utils.clickElement(this.driver, btn_ContinueAfterRating);
 		switch (optionNum)
 		{
 		case 1:
-			Utils.clickElement(btn_CancelOption1);
+			Utils.clickElement(this.driver, btn_CancelOption1);
 			if (planPeriod.contains("Yearly"))
 			{
-				Utils.inputValueIntoTextbox(txt_Feedback, feedback);
-				Utils.clickElement(btn_CancelAccount);
+				Utils.inputValueIntoTextbox(this.driver, txt_Feedback, feedback);
+				Utils.clickElement(this.driver, btn_CancelAccount);
 			}
 			else
 			{
-				Utils.clickElement(btn_StillCancel);
-				Utils.clickElement(btn_StillCancel);
+				Utils.clickElement(this.driver, btn_StillCancel);
+				Utils.clickElement(this.driver, btn_StillCancel);
 			}
-			Utils.clickElement(btn_ConfirmCancel);
+			Utils.clickElement(this.driver, btn_ConfirmCancel);
 			break;
 		case 2:
-			Utils.clickElement(btn_CancelOption2);
+			Utils.clickElement(this.driver, btn_CancelOption2);
 			Thread.sleep(1000);
-			Utils.clickElement(btn_StillCancel);
-			Utils.clickElement(btn_CancelAccount);
-			Utils.clickElement(btn_ConfirmCancel);
+			Utils.clickElement(this.driver, btn_StillCancel);
+			Utils.clickElement(this.driver, btn_CancelAccount);
+			Utils.clickElement(this.driver, btn_ConfirmCancel);
 			break;
 		case 3:
-			Utils.clickElement(btn_CancelOption3);
-			Utils.inputValueIntoTextbox(txt_Feedback, feedback);
-			Utils.clickElement(btn_CancelAccount);
-			Utils.clickElement(btn_ConfirmCancel);
+			Utils.clickElement(this.driver, btn_CancelOption3);
+			Utils.inputValueIntoTextbox(this.driver, txt_Feedback, feedback);
+			Utils.clickElement(this.driver, btn_CancelAccount);
+			Utils.clickElement(this.driver, btn_ConfirmCancel);
 			break;
 		case 4:
-			Utils.clickElement(btn_CancelOption4);
-			Utils.inputValueIntoTextbox(txt_Feedback, feedback);
-			Utils.clickElement(btn_CancelAccount);
-			Utils.clickElement(btn_ConfirmCancel);
+			Utils.clickElement(this.driver, btn_CancelOption4);
+			Utils.inputValueIntoTextbox(this.driver, txt_Feedback, feedback);
+			Utils.clickElement(this.driver, btn_CancelAccount);
+			Utils.clickElement(this.driver, btn_ConfirmCancel);
 			break;
 		case 5:
-			Utils.clickElement(btn_CancelOption5);
-			Utils.inputValueIntoTextbox(txt_Feedback, feedback);
-			Utils.clickElement(btn_CancelAccount);
-			Utils.clickElement(btn_ConfirmCancel);
+			Utils.clickElement(this.driver, btn_CancelOption5);
+			Utils.inputValueIntoTextbox(this.driver, txt_Feedback, feedback);
+			Utils.clickElement(this.driver, btn_CancelAccount);
+			Utils.clickElement(this.driver, btn_ConfirmCancel);
 			break;
 		case 6:
-			Utils.clickElement(btn_CancelOption6);
-			Utils.inputValueIntoTextbox(txt_Feedback, feedback);
-			Utils.clickElement(btn_CancelAccount);
-			Utils.clickElement(btn_ConfirmCancel);
+			Utils.clickElement(this.driver, btn_CancelOption6);
+			Utils.inputValueIntoTextbox(this.driver, txt_Feedback, feedback);
+			Utils.clickElement(this.driver, btn_CancelAccount);
+			Utils.clickElement(this.driver, btn_ConfirmCancel);
 			break;
 		}
 	}

@@ -1,16 +1,21 @@
 package pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import data.Constants;
-import utils.BaseClass;
 import utils.Utils;
 
-public class TemplatesPage extends BaseClass{
+public class TemplatesPage{
+	private WebDriver driver;
+//	Utils utl = new Utils(this.driver);
+	
+	@FindBy (xpath = "//div[contains(@id,'fetchingStyles__loading')]")
+	WebElement lbl_LoadingModal;
 	
 	@FindBy (id = "templatesH1")
 	WebElement lbl_CategoryTitle;
@@ -292,31 +297,47 @@ public class TemplatesPage extends BaseClass{
 	WebElement btn_UpgradeFromPreview;
 	
 	// Initializing the Page Objects:
-	public TemplatesPage() {
-		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(driver, (int) Constants.IMPLICIT_WAIT);
+	public TemplatesPage(WebDriver d) {
+		this.driver = d;
+		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(this.driver, (int) Constants.IMPLICIT_WAIT);
 		PageFactory.initElements(factory, this);
 	}
 	
 	public void searchTemplates(String keyword)
 	{
-		Utils.inputValueIntoTextbox(txt_Search, keyword);
-		Utils.clickElement(btn_Search);
+		Utils.inputValueIntoTextbox(this.driver, txt_Search, keyword);
+		Utils.clickElement(this.driver, btn_Search);
 	}
 	
 	public void clickCreateUpgradeOnATemplate(String templateId) throws InterruptedException
 	{
 		WebElement btn_CreateUpgrade = driver.findElement(By.xpath("//a[contains(@href,'" + templateId + "')]/ancestor::div/center/div[1]"));
-		Utils.scrollToElement(btn_CreateUpgrade);
-		Utils.moveMouseToElement(btn_CreateUpgrade);
+		Utils.scrollToElement(this.driver, btn_CreateUpgrade);
+		Utils.moveMouseToElement(this.driver, btn_CreateUpgrade);
 		btn_CreateUpgrade.click();
 	}
 	
 	public void clickPreviewOnATemplate(String templateId) throws InterruptedException
 	{
 		WebElement btn_Preview = driver.findElement(By.xpath("//a[contains(@href,'" + templateId + "')]/ancestor::div/center/div[2]"));
-		Utils.scrollToElement(btn_Preview);
-		Utils.moveMouseToElement(btn_Preview);
+		Utils.scrollToElement(this.driver, btn_Preview);
+		Utils.moveMouseToElement(this.driver, btn_Preview);
 		btn_Preview.click();
+	}
+	
+	public void waitUntilLoadingModalDisappears()
+	{
+		Utils.waitElementInvisible(this.driver, lbl_LoadingModal);
+	}
+	
+	public void waitUntilTooltipAppears()
+	{
+		Utils.waitUntilElementIsVisible(this.driver, btn_Close_Tooltip);
+	}
+	
+	public void closeTemplateTourGuide()
+	{
+		Utils.clickElement(this.driver, btn_Close_Tooltip);
 	}
 
 }

@@ -13,18 +13,17 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openqa.selenium.WebDriver;
 
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-import utils.*;
-import data.*;
-
 public class F_Mixpanel_API {
+	
 	/**
-	 * Method name : callAPI 
+	 * Method name : getEventArraysFromAPI 
 	 * Description : This method will set MP authentication,
 	 * 				 insert JQL script as a parameter of request and send post request 
 	 * Accept 	   : String (API based Url, API secret 64base encoded, JQL script) 
@@ -54,12 +53,12 @@ public class F_Mixpanel_API {
 	}
 	
 	/**
-	 * Method name : callAPI 
+	 * Method name : getEventArraysFromAPI 
 	 * Description : This method will call mixpanel API to get list of events filtered by create time
 	 * Accept 	   : String (API based Url, API secret 64base encoded, JQL script) 
 	 * Return 	   : JSONArray (an array of MP events)
 	 */
-	public JSONArray callAPI(String jqlScript, int expected_NumEvents, Date createdAfter) throws JSONException, InterruptedException {
+	public JSONArray getEventArraysFromAPI(String jqlScript, int expected_NumEvents, Date createdAfter) throws JSONException, InterruptedException {
 		RestAssured.baseURI = Utils.getValueFromPropertiesFile("mp_api_url");
 		RequestSpecification request = RestAssured.given().header(new Header("Authorization", "Basic "
 				+ Utils.getValueFromPropertiesFile("mp_api_secret_enconded")));
@@ -93,15 +92,19 @@ public class F_Mixpanel_API {
 	}
 	
 	/**
-	 * Method name : callAPI 
+	 * Method name : getEventArraysFromAPI 
 	 * Description : This method will call API without waiting
 	 * Accept 	   : String (jql script from file) 
 	 * Return 	   : JSONArray (an array of MP events)
 	 */
-	public static JSONArray callAPI(String jqlScript) throws JSONException, InterruptedException {
-		RestAssured.baseURI = Utils.readXmlNodeByTagname(Constants.xml_File_Path, Constants.xml_api_Url_Tagname);
+	public JSONArray getEventArraysFromAPI(String jqlScript) throws JSONException, InterruptedException {
+//		RestAssured.baseURI = Utils.readXmlNodeByTagname(Constants.xml_File_Path, Constants.xml_api_Url_Tagname);
+//		RequestSpecification request = RestAssured.given().header(new Header("Authorization", "Basic "
+//				+ Utils.readXmlNodeByTagname(Constants.xml_File_Path, Constants.xml_api_Secret_Encoded_Tagname)));
+		
+		RestAssured.baseURI = Utils.getValueFromPropertiesFile("mp_api_url");
 		RequestSpecification request = RestAssured.given().header(new Header("Authorization", "Basic "
-				+ Utils.readXmlNodeByTagname(Constants.xml_File_Path, Constants.xml_api_Secret_Encoded_Tagname)));
+				+ Utils.getValueFromPropertiesFile("mp_api_secret_enconded")));
 		request.params("script", jqlScript);
 		Response response = request.post();
 		return new JSONArray(response.getBody().asString());
@@ -114,10 +117,10 @@ public class F_Mixpanel_API {
 	 * Accept : String (user email, fromDate, toDate) 
 	 * Return : String (Script with new parameters)
 	 */
-	public static String replaceJQLParams(String eventName, String userEmail) throws IOException {
+	public String replaceJQLParams(String eventName, String userEmail) throws IOException {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		String dateAsString = simpleDateFormat.format(new Date());
-		String script = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/src/test/java/data/JQL")));
+		String script = new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/src/main/java/data/JQL")));
 		return script.replace("eventName", eventName)
 					 .replace("testemail@venngage.com", userEmail)
 					 .replace("from_today", dateAsString)
@@ -130,7 +133,7 @@ public class F_Mixpanel_API {
 	 * Accept	   : JSONArray (actual events, expected events) 
 	 * Return      : boolean
 	 */
-	public static boolean verifyEventsGenerated(JSONArray actualEvents, JSONArray expectedEvents) throws JSONException {
+	public boolean verifyEventsGenerated(JSONArray actualEvents, JSONArray expectedEvents) throws JSONException {
 		boolean result = false;
 		for (int j = 0; j < actualEvents.length(); j++) {
 			result = result && verifyEvent(actualEvents.getJSONObject(j), expectedEvents.getJSONObject(j));
@@ -144,7 +147,7 @@ public class F_Mixpanel_API {
 	 * Accept : JSONArray (events), String (eventName) 
 	 * Return : JSONObject
 	 */
-	public static JSONObject getEventByName(JSONArray events, String eventName) throws JSONException {
+	public JSONObject getEventByName(JSONArray events, String eventName) throws JSONException {
 		JSONObject expectedEvent = null;
 		for (int i = 0; i < events.length(); i++)
 			if (events.getJSONObject(i).getString("name").equalsIgnoreCase(eventName)) {
@@ -160,7 +163,7 @@ public class F_Mixpanel_API {
 	 * Accept : JSONArray (events), String (eventName) 
 	 * Return : JSONArray
 	 */
-	public static JSONArray getEventsSameName(JSONArray events, String eventName) throws JSONException {
+	public JSONArray getEventsSameName(JSONArray events, String eventName) throws JSONException {
 		JSONArray expectedEvents = new JSONArray();
 		for (int i = 0; i < events.length(); i++)
 			if (events.getJSONObject(i).getString("name").equalsIgnoreCase(eventName)) {
@@ -175,7 +178,7 @@ public class F_Mixpanel_API {
 	 * Accept : JSONArray (events), String (name of event, name of property)
 	 * Return : JSONObject (event)
 	 */
-	public static JSONObject getEventByProperty(JSONArray events, String eventName, String eventProperty) throws JSONException
+	public JSONObject getEventByProperty(JSONArray events, String eventName, String eventProperty) throws JSONException
 	{
 		JSONObject expectedEvent = null;
 		boolean flag = false;
@@ -209,7 +212,7 @@ public class F_Mixpanel_API {
 	 * Accept : JSONObject (event), String (name of property, value of property) 
 	 * Return : boolean
 	 */
-	public static boolean verifyEventProperties(JSONObject event, String propertyName, String expectedPropertyValue) throws JSONException
+	public boolean verifyEventProperties(JSONObject event, String propertyName, String expectedPropertyValue) throws JSONException
 	{
 		Object actualValue = event.getJSONObject("properties").get(propertyName);
 		if (actualValue.toString().equalsIgnoreCase(expectedPropertyValue)) {
@@ -228,7 +231,7 @@ public class F_Mixpanel_API {
 	 * Accept : JSONObject (actual & expected event)
 	 * Return : boolean
 	 */
-	public static boolean verifyEvent(JSONObject actualEvent, JSONObject expectedEvent)
+	public boolean verifyEvent(JSONObject actualEvent, JSONObject expectedEvent)
 	{
 		if(!actualEvent.toString().equalsIgnoreCase(expectedEvent.toString()))
 		{
@@ -249,7 +252,7 @@ public class F_Mixpanel_API {
 	 * Accept : String arrays (actual & expected event names)
 	 * Return : boolean
 	 */
-	public static boolean verifyGeneratedEventNames(List<String> expected, List<String> actual)
+	public boolean verifyGeneratedEventNames(List<String> expected, List<String> actual)
 	{
 			Collections.sort(expected);
 			Collections.sort(actual);
@@ -279,7 +282,7 @@ public class F_Mixpanel_API {
 	 * @return boolean: true if property value exists 
 	 * @throws JSONException 
 	 * */	
-		public static boolean verifyEventByPropertyValue(JSONArray events, String propertyName, String propertyValue) throws JSONException
+		public boolean verifyEventByPropertyValue(JSONArray events, String propertyName, String propertyValue) throws JSONException
 		{
 			boolean result = false;
 			for (int i = 0; i < events.length(); i++)
@@ -313,7 +316,7 @@ public class F_Mixpanel_API {
 //	 * Accept : JSONObject (event), String (name of property, value of property)
 //	 * Return : boolean
 //	 */
-//	public static JSONObject replaceEventPropertyValue(JSONObject event, String propertyName, Object propertyValue) throws EventPropertyException
+//	public JSONObject replaceEventPropertyValue(JSONObject event, String propertyName, Object propertyValue) throws EventPropertyException
 //	{
 //		try {
 //			if (propertyName.contains("properties")) {
@@ -338,7 +341,7 @@ public class F_Mixpanel_API {
 //	 * Accept : String (text file name) 
 //	 * Return : JSONArray
 //	 */
-//	public static JSONArray convertTextFileToJSONArray(String fileName) throws IOException, JSONException {
+//	public JSONArray convertTextFileToJSONArray(String fileName) throws IOException, JSONException {
 //		String data = new String(
 //				Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/src/TestData/" + fileName)));
 //		return new JSONArray(data);
@@ -350,7 +353,7 @@ public class F_Mixpanel_API {
 //	 * Accept : JSONArray (list of events), String[] (list of unexpected properties)
 //	 * Return : void
 //	 */
-//	public static void removeUnexpectedProperties(JSONArray events, String[] propertyNames) throws IOException, JSONException {
+//	public void removeUnexpectedProperties(JSONArray events, String[] propertyNames) throws IOException, JSONException {
 //		for (int i=0; i<events.length(); i++)
 //		{
 //			for (int j=0; j<propertyNames.length; j++)

@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openqa.selenium.WebDriver;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -15,7 +16,6 @@ import com.stripe.model.Plan;
 import com.stripe.model.Subscription;
 
 import data.*;
-import utils.*;
 
 public class F_Stripe_API {
 	
@@ -25,9 +25,9 @@ public class F_Stripe_API {
 	 * @return Invoice object
 	 * @throws StripeException
 	 * */
-	public static Invoice getInvoice(String invoiceId) throws StripeException
+	public Invoice getInvoice(String invoiceId) throws StripeException
 	{
-		Stripe.apiKey = Constants.Stripe_Secret_Key;
+		Stripe.apiKey = Utils.getValueFromPropertiesFile("stripe_base_url");
 		return Invoice.retrieve(invoiceId);
 	}
 	
@@ -38,9 +38,9 @@ public class F_Stripe_API {
 	 * @throws StripeException
 	 * @throws JSONException
 	 * */
-	public static JSONObject getCustomerJSONObject(String invoiceId) throws StripeException, JSONException
+	public JSONObject getCustomerJSONObject(String invoiceId) throws StripeException, JSONException
 	{
-		Stripe.apiKey = Constants.Stripe_Secret_Key;
+		Stripe.apiKey = Utils.getValueFromPropertiesFile("stripe_secret_key");
 		Invoice i = Invoice.retrieve(invoiceId);
 		String cusId = i.getCustomer();
 		String cus = Customer.retrieve(cusId).toJson();
@@ -54,9 +54,9 @@ public class F_Stripe_API {
 	 * @throws StripeException
 	 * @throws JSONException
 	 * */
-	public static JSONObject getSubscriptionJSONObject(String invoiceId) throws StripeException, JSONException
+	public JSONObject getSubscriptionJSONObject(String invoiceId) throws StripeException, JSONException
 	{
-		Stripe.apiKey = Constants.Stripe_Secret_Key;
+		Stripe.apiKey = Utils.getValueFromPropertiesFile("stripe_secret_key");
 		Invoice i = Invoice.retrieve(invoiceId);
 		String subId = i.getSubscription();
 		String sub = Subscription.retrieve(subId).toJson();
@@ -72,9 +72,9 @@ public class F_Stripe_API {
 	 * @throws IOException 
 	 * @throws JSONException 
 	 * */
-	public static JSONObject getPredefinedPlan(String planId) throws StripeException, IOException, JSONException
+	public JSONObject getPredefinedPlan(String planId) throws StripeException, IOException, JSONException
 	{
-		String filePath = Constants.Folder_TestData + Constants.File_StripeData;
+		String filePath = Constants.STRIPE_PLAN_FILE_PATH;
 		String ja = new String(Files.readAllBytes(Paths.get(filePath)));
 		JSONObject plan = new JSONObject(ja).getJSONObject(planId);
 		return plan;
@@ -89,9 +89,9 @@ public class F_Stripe_API {
 	 * @throws IOException 
 	 * @throws JSONException 
 	 * */
-	public static JSONObject getPredefinedPlanFromStripe(String planId) throws StripeException, IOException, JSONException
+	public JSONObject getPredefinedPlanFromStripe(String planId) throws StripeException, IOException, JSONException
 	{
-		Stripe.apiKey = Constants.Stripe_Secret_Key;
+		Stripe.apiKey = Utils.getValueFromPropertiesFile("stripe_secret_key");
 		return new JSONObject(Plan.retrieve(planId).toJson());
 	}
 	
@@ -101,7 +101,7 @@ public class F_Stripe_API {
 	 * @return JSONObject
 	 * @throws JSONException 
 	 * */
-	public static JSONObject setExpectedCustomer(String createdDate, String email, String cardBrand
+	public JSONObject setExpectedCustomer(String createdDate, String email, String cardBrand
 			, String expMonth, String expYear, String last4Digit, String cardHolderName) throws JSONException
 	{
 		JSONObject expectedCustomer = new JSONObject();
@@ -123,7 +123,7 @@ public class F_Stripe_API {
 	 * @throws JSONException
 	 * @throws StripeException
 	 * */
-	public static JSONObject getActualCustomer(String cusId) throws JSONException, StripeException
+	public JSONObject getActualCustomer(String cusId) throws JSONException, StripeException
 	{
 		JSONObject customer = new JSONObject(Customer.retrieve(cusId).toJson());
 		JSONObject actualCustomer = new JSONObject();
@@ -145,7 +145,7 @@ public class F_Stripe_API {
 	 * @return JSONObject
 	 * @throws JSONException 
 	 * */
-	public static JSONObject setExpectedSubscription(String startDate, String endDate, String cancelledAt, String cancelEndOfPeriod, JSONObject plan, String status) throws JSONException
+	public JSONObject setExpectedSubscription(String startDate, String endDate, String cancelledAt, String cancelEndOfPeriod, JSONObject plan, String status) throws JSONException
 	{
 		JSONObject expectedSubscription = new JSONObject();
 		expectedSubscription.put("billing", "charge_automatically");
@@ -171,7 +171,7 @@ public class F_Stripe_API {
 	 * @throws JSONException
 	 * @throws StripeException
 	 * */
-	public static JSONObject getActualSubscription(String subId) throws JSONException, StripeException
+	public JSONObject getActualSubscription(String subId) throws JSONException, StripeException
 	{
 		JSONObject subscription = new JSONObject(Subscription.retrieve(subId).toJson());
 		JSONObject actualSubscription = new JSONObject();
@@ -194,7 +194,7 @@ public class F_Stripe_API {
 		return actualSubscription;
 	}
 	
-	public static JSONObject setExpectedInvoice(String amount, String desc, String date, String endDate) throws JSONException
+	public JSONObject setExpectedInvoice(String amount, String desc, String date, String endDate) throws JSONException
 	{
 		JSONObject expectedInvoice = new JSONObject();
 		expectedInvoice.put("amount_due", amount);
@@ -211,7 +211,7 @@ public class F_Stripe_API {
 		return expectedInvoice;
 	}
 	
-	public static JSONObject getActualInvoice(String invoiceId) throws JSONException, StripeException
+	public JSONObject getActualInvoice(String invoiceId) throws JSONException, StripeException
 	{
 		JSONObject invoice = new JSONObject(Invoice.retrieve(invoiceId).toJson());
 		JSONObject actualInvoice = new JSONObject();
@@ -231,7 +231,7 @@ public class F_Stripe_API {
 	}
 	
 	
-	public static boolean compareTwoJsonObjects(JSONObject expected, JSONObject actual)
+	public boolean compareTwoJsonObjects(JSONObject expected, JSONObject actual)
 	{
 		if (expected.toString().equals(actual.toString()))
 		{

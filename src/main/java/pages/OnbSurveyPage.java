@@ -1,19 +1,23 @@
 package pages;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import data.Constants;
-import utils.BaseClass;
 import utils.Utils;
 
-public class OnbSurveyPage extends BaseClass{
-
+public class OnbSurveyPage{
+	private WebDriver driver;
+//	 Utils utl = new Utils(this.driver);
+	
+//	private WebDriver driver;
 	private String org;
 	private String role;
 	private String website;
@@ -145,7 +149,7 @@ public class OnbSurveyPage extends BaseClass{
 	@FindBy (xpath = "//button[@class='styles__button--k0K5A styles__buttonSubmit--Xw5fg']")
 	WebElement btn_Confirm;
 	
-	@FindBy (xpath = "//button[text()='Continue']")
+	@FindBy (xpath = "//div[@id='verticalThumbnailContinueBanner']//button")
 	WebElement btn_Continue;
 	
 	//Recommended templates
@@ -153,14 +157,16 @@ public class OnbSurveyPage extends BaseClass{
 	
 	
 	// Initializing the Page Objects:
-	public OnbSurveyPage() {
-		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(driver, (int) Constants.IMPLICIT_WAIT);
+	public OnbSurveyPage(WebDriver d) {
+		this.driver = d;
+		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(this.driver, (int) Constants.IMPLICIT_WAIT);
 		PageFactory.initElements(factory, this);
 	}		
 	
 	
 	// Initializing the Page Objects:
-	public OnbSurveyPage(String org, String role, String website, String cat, List<String> templateIds) {
+	public OnbSurveyPage(WebDriver d, String org, String role, String website, String cat, List<String> templateIds) {
+		this.driver = d;
 		this.org = org;
 		this.role = role;
 		this.website = website;
@@ -171,6 +177,7 @@ public class OnbSurveyPage extends BaseClass{
 		PageFactory.initElements(factory, this);
 	}
 
+	
 	public String getOrg() {
 		return org;
 	}
@@ -213,51 +220,69 @@ public class OnbSurveyPage extends BaseClass{
 	
 	public void selectOganization()
 	{
-		WebElement orgElement = driver.findElement(Orgnanization(this.org));
-		Utils.clickElement(orgElement);
+		WebElement orgElement = driver.findElement(Orgnanization(org));
+		Utils.clickElement(this.driver, orgElement);
 	}
 	
 	public void selectRole()
 	{
-		WebElement roleElement = driver.findElement(Role(this.role));
-		Utils.clickElement(roleElement);
+		WebElement roleElement = driver.findElement(Role(role));
+		Utils.clickElement(this.driver, roleElement);
 	}
 	
 	public void generateAutoBrand (boolean autoDetect, String site)
 	{
 		if(!autoDetect)
 		{
-			Utils.inputValueIntoTextbox(txt_Website, site);
+			Utils.inputValueIntoTextbox(this.driver, txt_Website, site);
 		}
-		Utils.clickElement(btn_Next);
-		Utils.waitUntilElementIsVisible(btn_Confirm);
+		Utils.clickElement(this.driver, btn_Next);
+		Utils.waitUntilElementIsVisible(this.driver, btn_Confirm);
 	}
 	
 	public void confirmAutoBrand(boolean confirm)
 	{
 		if(confirm)
 		{
-			Utils.clickElement(btn_Confirm);
+			Utils.clickElement(this.driver, btn_Confirm);
 		}
 		else
 		{
-			Utils.clickElement(btn_EditLater);
+			Utils.clickElement(this.driver, btn_EditLater);
 		}
 	}
 	
 	public void selectCategory()
 	{
-		int catIndex = Constants.RECOMMENDED_CATEGORIES.indexOf(this.cat);
-		WebElement catElement = driver.findElement(By.xpath("//div[contains(@class,'styles__horizontalThumbnailItem')]["+ (catIndex + 1) +"]"));
-		Utils.clickElement(catElement);
+		int catIndex = Constants.RECOMMENDED_CATEGORIES.indexOf(cat) + 1;
+		WebElement catElement = driver.findElement(By.xpath("//div[contains(@class,'styles__horizontalThumbnailItem')]["+ catIndex +"]"));
+		Utils.clickElement(this.driver, catElement);
 	}
 	
 	public void selectRecommendedTemplates()
 	{
-		for(int i = 0; i< this.template_Ids.size(); i++)
+		for(int i = 0; i< template_Ids.size(); i++)
 		{
-			Utils.clickElement(driver.findElement(By.xpath("//img[contains(@src,'" + template_Ids.get(i) + "')]")));
+			Utils.clickElement(this.driver, driver.findElement(By.xpath("//img[contains(@src,'" + template_Ids.get(i) + "')]")));
 		}
+	}
+	
+	public List<String> selectThreeTopRecommendedTemplates()
+	{
+		List<String> templateId = new ArrayList<String>();
+		WebElement img_Template = null;
+		for (int i = 1; i < 4; i++)
+		{
+			img_Template = driver.findElement(By.xpath("//div[@class='styles__answers--2hm__']//div[@class='styles__verticalThumbnailColumn--1sa3i']["
+																			+ i + "]/div[@class='styles__root--U-c1a'][1]"));
+			Utils.waitUntilElementIsVisible(this.driver, img_Template);
+			templateId.add(img_Template
+					.findElement(By.tagName("img")).getAttribute("src")
+					.replace("https://s3.amazonaws.com/yolo-thumbnails.venngage.com/template/small/", "")
+					.replace(".png", ""));
+			img_Template.click();
+		}
+		return templateId;
 	}
 	
 	public void completeOnboardingWithoutAutoBrand()
@@ -265,24 +290,26 @@ public class OnbSurveyPage extends BaseClass{
 		selectOganization();
 		selectRole();
 		selectCategory();
-		selectRecommendedTemplates();
+		selectThreeTopRecommendedTemplates();
+		Utils.clickElement(this.driver, btn_Continue);
 	}
 	
 	public void completeOnboarding(boolean autoDetect, boolean confirm)
 	{
 		selectOganization();
 		selectRole();
-		if(this.website.equalsIgnoreCase("skip"))
+		if(website.equalsIgnoreCase("skip"))
 		{
-			Utils.clickElement(btn_NoWebSite);
+			Utils.clickElement(this.driver, btn_NoWebSite);
 		}
-		else if(!this.website.isEmpty())
+		else if(!website.isEmpty())
 		{
-			generateAutoBrand(autoDetect, this.website);
+			generateAutoBrand(autoDetect, website);
 			confirmAutoBrand(confirm);
 		}
 		selectCategory();
-		selectRecommendedTemplates();
+		selectThreeTopRecommendedTemplates();
+		Utils.clickElement(this.driver, btn_Continue);
 	}
 	
 }

@@ -3,19 +3,20 @@ package data;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class Constants {
 
-	public static final String CHROME_DRIVER_PATH_WINDOW = "";
-	public static final String FIREFOX_DRIVER_PATH_WINDOW = "";
+	public static final String CHROME_DRIVER_PATH_WINDOW = System.getProperty("user.dir") + "/src/main/java/data/chromedriver.exe";
+	public static final String FIREFOX_DRIVER_PATH_WINDOW = System.getProperty("user.dir") + "/src/main/java/data/geckodriver.exe";
 	public static final String CHROME_DRIVER_PATH_MAC = "";
 	public static final String FIREFOX_DRIVER_PATH_MAC = "";
 
-	public static final int IMPLICIT_WAIT = 10;
-	public static final long EXPLICIT_WAIT = 30;
+	public static final int IMPLICIT_WAIT = 15;
+	public static final long EXPLICIT_WAIT = 3;
 
 	public static final String DOWNLOAD_DESTINATION = System.getProperty("user.home") + "/Downloads/";
 
-	public static final String BASE_URL = "venngage.beer";
+	public static final String BASE_URL = "https://venngage.beer";
 
 	public static final List<String> ORGS = Arrays.asList("sm-business", "med-business", "enterprise", "nonprofit", "govt", "school",
 			"self-employed", "other" );
@@ -53,5 +54,7 @@ public class Constants {
 	public static final String INCORRECT_NUMBER  = "4242424242424241";
 	public static final String INVALID_CARD  = "1234567890123456";
 	public static final String ACCEPTED_CARD_CHARGE_FAILED  = "4000000000000341";
+	
+	public static final String STRIPE_PLAN_FILE_PATH = System.getProperty("user.dir") + "\\src\\main\\java\\data\\stripe.plans.json";
 
 }

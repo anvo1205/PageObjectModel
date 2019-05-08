@@ -1,14 +1,18 @@
 package pages;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
+import bsh.util.Util;
 import data.Constants;
-import utils.BaseClass;
+import utils.Utils;
 
-public class PricingPage extends BaseClass{
+public class PricingPage{
+	private WebDriver driver;
+//	 Utils utl = new Utils(this.driver);
 	
 	@FindBy(id = "option-pricing-monthly")
 	WebElement tab_Monthly;
@@ -38,9 +42,45 @@ public class PricingPage extends BaseClass{
 	WebElement btn_GetStartedPre2;
 	
 	// Initializing the Page Objects:
-	public PricingPage() {
-		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(driver, (int) Constants.IMPLICIT_WAIT);
+	public PricingPage(WebDriver d) {
+		this.driver = d;
+		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(this.driver, (int) Constants.IMPLICIT_WAIT);
 		PageFactory.initElements(factory, this);
+	}
+	
+	public void selectQuarterlyTab()
+	{
+		Utils.clickElement(this.driver, tab_Quarterly);
+	}
+	
+	public void clickGetStartedFree1()
+	{
+		Utils.clickElement(this.driver, btn_GetStartedFree1);
+	}
+	
+	public void clickGetStartedFree2()
+	{
+		Utils.clickElement(this.driver, btn_GetStartedFree2);
+	}
+	
+	public void clickGetStartedPre1()
+	{
+		Utils.clickElement(this.driver, btn_GetStartedPre1);
+	}
+	
+	public void clickGetStartedPre2()
+	{
+		Utils.clickElement(this.driver, btn_GetStartedPre2);
+	}
+	
+	public void clickGetStartedBuz1()
+	{
+		Utils.clickElement(this.driver, btn_GetStartedBuz1);
+	}
+	
+	public void clickGetStartedBuz2()
+	{
+		Utils.clickElement(this.driver, btn_GetStartedBuz2);
 	}
 	
 }

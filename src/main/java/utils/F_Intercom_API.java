@@ -1,7 +1,5 @@
 package utils;
 
-import data.*;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +7,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.openqa.selenium.WebDriver;
 
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
@@ -17,6 +16,7 @@ import io.restassured.specification.RequestSpecification;
 import utils.Utils;
 
 public class F_Intercom_API {
+	
 	/**
 	 * Method name : callIntercomAPI 
 	 * Description : This method will set API
@@ -24,10 +24,10 @@ public class F_Intercom_API {
 	 * Accept : String (API based Url, API token) 
 	 * Return : JSONArray (an array of Intercom events)
 	 */
-	public static JSONArray callIntercomAPI(String userEmail) throws JSONException {
-		RestAssured.baseURI = Constants.Intercom_Api_Base_Url;
+	public JSONArray callIntercomAPI(String userEmail) throws JSONException {
+		RestAssured.baseURI = Utils.getValueFromPropertiesFile("intercom_api_base_url");
 		RequestSpecification request = RestAssured.given()
-				.header(new Header("Authorization", "Bearer " + Constants.Intercom_Api_Token))
+				.header(new Header("Authorization", "Bearer " + Utils.getValueFromPropertiesFile("intercom_api_token")))
 				.accept("application/json");
 		request.params("type", "user");
 		request.params("email", userEmail);
@@ -45,10 +45,10 @@ public class F_Intercom_API {
 	 * @throws InterruptedException 
 	 * @throws JSONException 
 	 */
-	public static JSONArray callIntercomAPI(String userEmail, int numEvents) throws InterruptedException, JSONException {
-		RestAssured.baseURI = Constants.Intercom_Api_Base_Url;
+	public JSONArray callIntercomAPI(String userEmail, int numEvents) throws InterruptedException, JSONException {
+		RestAssured.baseURI = Utils.getValueFromPropertiesFile("intercom_api_base_url");
 		RequestSpecification request = RestAssured.given()
-				.header(new Header("Authorization", "Bearer " + Constants.Intercom_Api_Token))
+				.header(new Header("Authorization", "Bearer " + Utils.getValueFromPropertiesFile("intercom_api_token")))
 				.accept("application/json");
 		request.params("type", "user");
 		request.params("email", userEmail);
@@ -75,10 +75,10 @@ public class F_Intercom_API {
 	 * Description : This method will call intercom API and filter events by created date
 	 * Return : JSONArray (an array of Intercom events)
 	 */
-	public static JSONArray callIntercomAPI(String userEmail, Date createdAfter) throws JSONException {
-		RestAssured.baseURI = Constants.Intercom_Api_Base_Url;
+	public JSONArray callIntercomAPI(String userEmail, Date createdAfter) throws JSONException {
+		RestAssured.baseURI = Utils.getValueFromPropertiesFile("intercom_api_base_url");
 		RequestSpecification request = RestAssured.given()
-				.header(new Header("Authorization", "Bearer " + Constants.Intercom_Api_Token))
+				.header(new Header("Authorization", "Bearer " + Utils.getValueFromPropertiesFile("intercom_api_token")))
 				.accept("application/json");
 		request.params("type", "user");
 		request.params("email", userEmail);
@@ -103,7 +103,7 @@ public class F_Intercom_API {
 	 * Accept : List<String> (actual & expected event names)
 	 * Return : boolean
 	 */
-	public static boolean verifyListEventNames(List<String> expected, List<String> actual) {
+	public boolean verifyListEventNames(List<String> expected, List<String> actual) {
 		Collections.sort(expected);
 		Collections.sort(actual);
 		if (expected.equals(actual)) {
@@ -125,7 +125,7 @@ public class F_Intercom_API {
 	 * Accept : List<String> (actual & expected event names)
 	 * Return : boolean
 	 */
-	public static boolean verifyEventProperty(JSONObject event, String propertyName, String propertyValue) throws JSONException {
+	public boolean verifyEventProperty(JSONObject event, String propertyName, String propertyValue) throws JSONException {
 		JSONObject metadata = event.getJSONObject("metadata");
 		String actualValue = metadata.getString(propertyName).toString();
 		if (actualValue.equalsIgnoreCase(propertyValue))
@@ -149,7 +149,7 @@ public class F_Intercom_API {
 	 * Accept : JSONArray, String 
 	 * Return : JSONObject
 	 */
-	public static JSONObject getEventByName(JSONArray events, String eventName) throws JSONException {
+	public JSONObject getEventByName(JSONArray events, String eventName) throws JSONException {
 		JSONObject event = null;
 		for (int i = 0; i < events.length(); i++) {
 			event = events.getJSONObject(i);
@@ -166,7 +166,7 @@ public class F_Intercom_API {
 	 * Accept : JSONArray, String 
 	 * Return : JSONObject
 	 */
-	public static JSONObject getEventByPropertyName(JSONArray events, String eventName, String propertyName) throws JSONException {
+	public JSONObject getEventByPropertyName(JSONArray events, String eventName, String propertyName) throws JSONException {
 		JSONObject event = null;
 		for (int i = 0; i < events.length(); i++) {
 			event = events.getJSONObject(i);
@@ -191,7 +191,7 @@ public class F_Intercom_API {
 	 * @param String: proValue
 	 * @throws JSONException
 	 */
-	public static boolean verifyEventByPropertyValue(JSONArray events, String eventName, String proName, String proValue) throws JSONException
+	public boolean verifyEventByPropertyValue(JSONArray events, String eventName, String proName, String proValue) throws JSONException
 	{
 		boolean result = false;
 		for (int i = 0; i < events.length(); i++)

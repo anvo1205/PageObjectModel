@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,22 +29,27 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import data.*;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
-public class Utils extends BaseClass{
+public class Utils{
+	public static Properties pros;
 	
 	public static String getValueFromPropertiesFile(String key)
 	{
 		try {
 			pros = new Properties();
-			FileInputStream configureFile = new FileInputStream(System.getProperty("user.dir")+ "/src/main/java/data/config.properties");
+			FileInputStream configureFile = new FileInputStream(System.getProperty("user.dir")+ "/src/main/java/data/configure.properties");
 			pros.load(configureFile);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -59,7 +65,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By element
 	 * Return		: WebElement	
 	 */	
-	public static WebElement captureWebElement(By element)
+	public static WebElement captureWebElement(WebDriver driver, By element)
 	{
 		return driver.findElement(element);
 	}
@@ -70,7 +76,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By element
 	 * Return		: List<WebElement>	
 	 */	
-	public static List<WebElement> captureWebElements(By element)
+	public static List<WebElement> captureWebElements(WebDriver driver, By element)
 	{
 		return driver.findElements(element);
 	}
@@ -81,7 +87,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By element
 	 * Return		: void	
 	 */	
-	public static void moveMouseToElement(WebElement element)
+	public static void moveMouseToElement(WebDriver driver, WebElement element)
 	{
 		Actions action = new Actions(driver);
 		action.moveToElement(element).build().perform();
@@ -93,9 +99,9 @@ public class Utils extends BaseClass{
 	 * Accept		: By element
 	 * Return		: void	
 	 */	
-	public static void clickElement(WebElement element)
+	public static void clickElement(WebDriver driver, WebElement element)
 	{
-		waitUntilElementIsVisible(element);
+		waitUntilElementIsVisible(driver, element);
 		element.click();
 	}
 	
@@ -105,14 +111,22 @@ public class Utils extends BaseClass{
 	 * Accept		: By element, String value
 	 * Return		: void	
 	 */	
-	public static void inputValueIntoTextbox(WebElement txt, String value)
+	public static void inputValueIntoTextbox(WebDriver driver, WebElement txt, String value)
 	{
-		waitUntilElementIsVisible(txt);
+		waitUntilElementIsVisible(driver, txt);
 		if (!txt.getAttribute("value").isEmpty() || !txt.getText().isEmpty())
 		{
 			txt.clear();
 		}
 		txt.sendKeys(value);
+	}
+	
+	public static Wait<WebDriver> setFluentWait(WebDriver driver)
+	{
+		return new FluentWait<WebDriver>(driver)							
+				.withTimeout(Duration.ofSeconds(Constants.IMPLICIT_WAIT)) 			
+				.pollingEvery(Duration.ofSeconds(Constants.EXPLICIT_WAIT)) 			
+				.ignoring(NoSuchElementException.class);
 	}
 	
 	/** 
@@ -121,11 +135,12 @@ public class Utils extends BaseClass{
 	 * Accept		: By element
 	 * Return		: void	
 	 */	
-	public static void waitUntilElementIsVisible(WebElement element)
+	public static void waitUntilElementIsVisible(WebDriver driver, WebElement element)
 	{
+//		BaseClass bc = new BaseClass(driver);
 		try
 		{
-			wait.until(ExpectedConditions.visibilityOf(element));
+			setFluentWait(driver).until(ExpectedConditions.visibilityOf(element));
 		}
 		catch (NoSuchElementException e)
 		{
@@ -142,10 +157,11 @@ public class Utils extends BaseClass{
 	 * Accept		: By element
 	 * Return		: void	
 	 */	
-	public static void waitElementInvisible(WebElement element) {
+	public static void waitElementInvisible(WebDriver driver, WebElement element) {
+//		BaseClass bc = new BaseClass(driver);
 		try
 		{
-			wait.until(ExpectedConditions.invisibilityOf(element));
+			setFluentWait(driver).until(ExpectedConditions.invisibilityOf(element));
 		}
 		catch (NoSuchElementException e)
 		{
@@ -158,18 +174,18 @@ public class Utils extends BaseClass{
 	 * @param By
 	 * @param int	
 	 */	
-	public static void waitElementInvisible(WebElement element, int timeoutInSeconds) {
-		wait = new WebDriverWait(driver, timeoutInSeconds);
-		try
-		{
-			wait.until(ExpectedConditions.invisibilityOf(element));
-		}
-		catch (NoSuchElementException e)
-		{
-			System.out.println("Element is visible");
-		}	
-		
-	}
+//	public void waitElementInvisible(WebElement element, int timeoutInSeconds) {
+//		wait = new WebDriverWait(driver, timeoutInSeconds);
+//		try
+//		{
+//			fluentWait.until(ExpectedConditions.invisibilityOf(element));
+//		}
+//		catch (NoSuchElementException e)
+//		{
+//			System.out.println("Element is visible");
+//		}	
+//		
+//	}
 	
 	/** 
 	 * Method name	: generateRandomEmail
@@ -209,7 +225,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By (element), String (tagName of options), String (text value)
 	 * Return		: void
 	 */	
-	public static void selectDropDownListValue(WebElement ddl, String tagName, String value) {
+	public static void selectDropDownListValue(WebDriver driver, WebElement ddl, String tagName, String value) {
 		List<WebElement> listItems = ddl.findElements(By.tagName(tagName));
 		for (WebElement item: listItems)
 		{
@@ -226,7 +242,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By (element), String (tagName of options)
 	 * Return		: void
 	 */	
-	public static List<String> getDropDownListItems(WebElement ddl, String tagName) {
+	public static List<String> getDropDownListItems(WebDriver driver, WebElement ddl, String tagName) {
 		List<String> list = new ArrayList<String>();
 		List<WebElement> listItems = ddl.findElements(By.tagName(tagName));
 		for (WebElement item: listItems)
@@ -267,7 +283,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By (element)
 	 * Return		: void
 	 */	
-	public static void scrollToElement(WebElement element) throws InterruptedException
+	public static void scrollToElement(WebDriver driver, WebElement element) throws InterruptedException
 	{
 		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
 		Thread.sleep(500); 
@@ -279,7 +295,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By (element), int (x-axis), int (y-axis)
 	 * Return		: void
 	 */	
-	public static void dragAndDropElement(WebElement element, int x, int y)
+	public static void dragAndDropElement(WebDriver driver, WebElement element, int x, int y)
 	{
 		Actions action = new Actions(driver);
 		action.dragAndDropBy(element, x, y);
@@ -360,7 +376,7 @@ public class Utils extends BaseClass{
 		for (int i = 0; i < 3; i++)
 		{
 			int monthLength = YearMonth.of(year, ++monthIndex).lengthOfMonth();
-			date = Utils.addDays(date, monthLength);
+			date = addDays(date, monthLength);
 			if (monthIndex == 12)
 			{
 				monthIndex = 0;
@@ -393,7 +409,7 @@ public class Utils extends BaseClass{
 	 * Accept		: By, String
 	 * Return		: boolean
 	 */	
-	public static boolean verifyTextElement(WebElement element, String textValue)
+	public static boolean verifyTextElement(WebDriver driver, WebElement element, String textValue)
 	{
 		String actualValue = element.getText();
 		if(!actualValue.equals(textValue))
@@ -502,9 +518,34 @@ public class Utils extends BaseClass{
 	 * Return		: void
 	 * @throws IOException 
 	 */		
-	public static void takeScreenshot(String fileName) throws IOException {
+	public static void takeScreenshot(WebDriver driver, String fileName) throws IOException {
 		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 		FileUtils.copyFile(scrFile, new File(System.getProperty("user.dir") + "/screenshots/" + fileName + ".png"));
 	}
+	
+	/**Method name	: unzipFile
+	 * Description	: This method will unzip a file and put extracted files to destination folder
+	 * Accept		: File
+	 * Return		: void
+	 * @throws IOException
+	 * @throws ZipException 
+	 */	
+	public static void unzipFile(File zipFilePath, File desFolder) throws IOException, ZipException {
+
+	    String source = zipFilePath.getAbsolutePath();
+	    String destination = desFolder.getPath();
+	  //  String password = "password";
+
+	    try {
+	         ZipFile zipFile = new ZipFile(source);
+	         if (zipFile.isEncrypted()) {
+	           // zipFile.setPassword(password);
+	         }
+	         zipFile.extractAll(destination);
+	    } catch (ZipException e) {
+	        e.printStackTrace();
+	    }
+	}
+	
 	
 }

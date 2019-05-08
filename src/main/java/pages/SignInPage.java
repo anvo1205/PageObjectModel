@@ -1,19 +1,22 @@
 package pages;
 
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import data.Constants;
-import utils.BaseClass;
 import utils.Utils;
 
-public class SignInPage extends BaseClass{
+public class SignInPage{
 
+	private WebDriver driver;
 	private String email;
 	private String password;
+	
+//	 Utils utl = new Utils(this.driver);
 	
 	@FindBy (id = "user_email")
 	WebElement txt_Email;
@@ -28,13 +31,15 @@ public class SignInPage extends BaseClass{
 	WebElement lnk_Register;
 	
 	// Initializing the Page Objects:
-	public SignInPage() {
-		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(driver, (int) Constants.IMPLICIT_WAIT);
+	public SignInPage(WebDriver d) {
+		this.driver = d;
+		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(this.driver, (int) Constants.IMPLICIT_WAIT);
 		PageFactory.initElements(factory, this);
 	}
 	
 	//Constructor to assign values
-	public SignInPage(String userEmail) {
+	public SignInPage(WebDriver d, String userEmail) {
+		this.driver = d;
 		this.email = userEmail;
 		this.password = "123456";
 		
@@ -63,8 +68,8 @@ public class SignInPage extends BaseClass{
 	
 	public void SignIn() throws InterruptedException
 	{
-		Utils.inputValueIntoTextbox(txt_Email, this.email);
-		Utils.inputValueIntoTextbox(txt_Password, this.password);
+		Utils.inputValueIntoTextbox(this.driver, txt_Email, this.email);
+		Utils.inputValueIntoTextbox(this.driver, txt_Password, this.password);
 		this.byPassGoogleCapcha();
 		Thread.sleep(2000);
 	}

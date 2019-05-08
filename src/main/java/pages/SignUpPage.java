@@ -1,20 +1,23 @@
 package pages;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 
 import data.Constants;
-import utils.BaseClass;
 import utils.Utils;
 
-public class SignUpPage extends BaseClass{
+public class SignUpPage{
 	
+	private WebDriver driver;
 	private String fName;
 	private String lName;
 	private String email;
 	private String password;
+	
+//	 Utils utl = new Utils(this.driver);
 	
 	@FindBy (id = "user_first_name")
 	WebElement txt_FistName;
@@ -62,13 +65,15 @@ public class SignUpPage extends BaseClass{
 	WebElement lnk_Login;
 	
 	// Initializing the Page Objects:
-	public SignUpPage() {
-		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(driver, (int) Constants.IMPLICIT_WAIT);
+	public SignUpPage(WebDriver d) {
+		this.driver = d;
+		AjaxElementLocatorFactory factory = new AjaxElementLocatorFactory(this.driver, (int) Constants.IMPLICIT_WAIT);
 		PageFactory.initElements(factory, this);
 	}
 	
 	//Constructor to assign values
-	public SignUpPage(String userEmail) {
+	public SignUpPage(WebDriver d, String userEmail) {
+		this.driver = d;
 		this.fName = "Automation";
 		this.lName = "Test";
 		this.email = userEmail;
@@ -122,30 +127,30 @@ public class SignUpPage extends BaseClass{
 	 */	
 	public void Register() throws InterruptedException
 	{
-		Utils.inputValueIntoTextbox(txt_FistName, this.fName);
-		Utils.inputValueIntoTextbox(txt_LastName, this.lName);
-		Utils.inputValueIntoTextbox(txt_Email, this.email);
-		Utils.inputValueIntoTextbox(txt_Password, this.password);
-		Utils.clickElement(btn_Register);
+		Utils.inputValueIntoTextbox(this.driver, txt_FistName, this.fName);
+		Utils.inputValueIntoTextbox(this.driver, txt_LastName ,this.lName);
+		Utils.inputValueIntoTextbox(this.driver, txt_Email, this.email);
+		Utils.inputValueIntoTextbox(this.driver, txt_Password, this.password);
+		Utils.clickElement(this.driver, btn_Register);
 		Thread.sleep(2000);
 	}
 	
 	public void SignUpUsingFb() throws InterruptedException
 	{
-		Utils.clickElement(btn_Facebook);
-		Utils.inputValueIntoTextbox(txt_FbEmail, email);
-		Utils.inputValueIntoTextbox(txt_FbPassword, password);
-		Utils.clickElement(btn_FbLogin);
+		Utils.clickElement(this.driver, btn_Facebook);
+		Utils.inputValueIntoTextbox(this.driver, txt_FbEmail, email);
+		Utils.inputValueIntoTextbox(this.driver, txt_FbPassword, password);
+		Utils.clickElement(this.driver, btn_FbLogin);
 		Thread.sleep(2000);
 	}
 	
 	public void SignUpUsingGoogle() throws InterruptedException
 	{
-		Utils.clickElement(btn_Google);
-		Utils.inputValueIntoTextbox(txt_GMail, email);
-		Utils.clickElement(btn_GMailNext);
-		Utils.inputValueIntoTextbox(txt_GPassword, password);
-		Utils.clickElement(btn_GPassNext);
+		Utils.clickElement(this.driver, btn_Google);
+		Utils.inputValueIntoTextbox(this.driver, txt_GMail, email);
+		Utils.clickElement(this.driver, btn_GMailNext);
+		Utils.inputValueIntoTextbox(this.driver, txt_GPassword, password);
+		Utils.clickElement(this.driver, btn_GPassNext);
 		Thread.sleep(2000);
 	}	
 

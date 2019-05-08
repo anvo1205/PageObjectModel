@@ -1,0 +1,15 @@
+<suite name="TEST" thread-count="1">
+<!-- <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd"> -->
+	<!-- create "numberOfUsers" on a free account, print id on the console, 
+		helpful to get AB users -->
+
+	<test name="createUsers">
+	<parameter name="platform" value="window" />
+		<parameter name="browser" value="chrome" />
+		<parameter name="numberOfUsers" value="20" />
+		<classes>
+			<class name="smoke_tests.CreateUser">
+			</class>
+		</classes>
+	</test>
+</suite>

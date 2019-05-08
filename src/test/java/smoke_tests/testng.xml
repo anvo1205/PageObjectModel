@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite thread-count="2" parallel="tests" name="Suite">
+  <test name="chrome 1">
+  <parameter name="platform" value="window" />
+  <parameter name="browser" value="chrome" />
+  <parameter name="language" value="es" />
+    <classes>
+      <class name="smoke_tests.PreSignUpToExport"/>
+    </classes>
+  </test> <!-- Paralell -->
+  
+<test name="chrome 2">
+  <parameter name="platform" value="window" />
+  <parameter name="browser" value="firefox" />
+  <parameter name="language" value="pt" />
+    <classes>
+      <class name="smoke_tests.BuzSignUpToExport"/>
+    </classes>
+  </test>
+</suite> <!-- Suite -->
